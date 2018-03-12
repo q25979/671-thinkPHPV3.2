@@ -1,0 +1,92 @@
+<!--logo 样式-->
+<css href="__PUBLIC__/css/topLogo.css" />
+
+<!-- 顶部开始 -->
+<div class="container">
+	<div class="logo">
+		<!--<a href="#"><img class="logo-img" src="__PUBLIC__/images/logo.jpg" />代理平台</a>-->
+		<a href="#"><img class="logo-img" id="logo" src="__PUBLIC__/images/logo.jpg" /><span id="sys-name"></span></a>
+	</div>
+	<div class="left_open">
+		<i title="展开左侧栏" class="iconfont">&#xe699;</i>
+	</div>
+
+	<ul class="layui-nav right" lay-filter="">
+		<li class="layui-nav-item">
+			<a href="javascript:;">admin</a>
+			<dl class="layui-nav-child" style="cursor:pointer;">
+				<!-- 二级菜单 -->
+				<dd><a onclick="personalInfo()">个人信息</a></dd>
+				<dd><a onclick="switchAccount(1)">切换帐号</a></dd>
+				<dd><a onclick="switchAccount(0)">退出</a></dd>
+			</dl>
+		</li>
+		<li class="layui-nav-item to-index"><a href=""></a></li>
+	</ul>
+</div>
+<!-- 顶部结束 -->
+
+<script>
+    // 个人信息
+    function personalInfo(){
+
+		var url = HOST_PATH + "/Template/Home/Agency/personalInfor.html";
+
+		layer.open({
+            type: 2,
+            title: "个人信息",
+            area: ['880px', '600px'], //宽高
+			resize: false,
+            content: url
+        });
+    }
+
+    // 切换账号
+    function switchAccount(id) {
+
+        if (id) {
+            var msg = '切换';
+        } else {
+            msg = '退出';
+        }
+        layer.open({
+            title: "提示",
+            content: "确定要"+ msg +"当前账号吗？",
+            btn: ["确定", "取消"],
+            yes: function (res) {
+                layer.closeAll();
+
+                var url = HOST_PATH + "/Home/AgencyLogin/logout";
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    success: function (res) {
+                        if(parseInt(res.code) == 0) {
+                            layer.msg( msg + "成功!", {icon: 6}, function (){
+                                location.reload() || window.location.reload();
+                            });
+                        }
+                    }
+                });
+            }
+        })
+    }
+
+    getLogoTopName();
+    // 获取logo 头部名称
+    function getLogoTopName () {
+        var url = HOST_PATH + "/Home/AgencyIndex/headerSysname";
+
+        $.ajax({
+            url: url,
+            success: function (res) {
+                // console.log(res);
+                $('#logo').attr('src', res.data.logo);
+                $('#sys-name').html(res.data.sys_name);
+                $('title').text(res.data.sys_name);
+            }
+        });
+    }
+
+
+</script>

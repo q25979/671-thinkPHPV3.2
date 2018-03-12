@@ -1,0 +1,86 @@
+<include file="Template/Common/header.html" />
+
+
+<css href="__PUBLIC__/view/ArticleDetail/articleDetail.css" />
+<link rel="stylesheet" href="">
+<script type="text/javascript" src="http://localhost/qzxt/Public/plug-in/layui/layui.js"></script>
+
+<script>
+    function GetRequest() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            strs = str.split("&");
+            for(var i = 0; i < strs.length; i ++) {
+                theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+            }
+        }
+        return theRequest;
+    }
+
+    var user_id = GetRequest().id;
+    var url = HOST_PATH + "/Home/AgencyArticle/articleDetails";
+    var data = {
+        id: user_id
+    };
+
+    $.ajax({
+        url: url,
+        data: data,
+        type: 'post',
+        success: function (res) {
+            layer.closeAll();
+            $("#title").html(res.data[0].title);
+            $("#reading").html(res.data[0].read_count);
+            $("#share").html(res.data[0].share_count);
+            $("#name").html(res.data[0].agency_id);
+            $("#time").html(res.data[0].create_time);
+
+
+            var w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+            console.log(w);
+            var h = res.data[0].html;
+            var l = /&lt;/g;
+            var r = /&gt;/g;
+            var f = /&quot;/g;
+
+            h = h.replace(l, '<').replace(r, '>').replace(f, '"');
+
+            // 渲染页面
+            $("#html").html(h);
+        }
+    });
+
+</script>
+
+<body>
+    <div class="detail" id="articleInfo">
+        <h3 id="title"></h3>
+
+        <div class="item">
+            <table class="acticle-info">
+                <tr>
+                    <td class="fontsize acticleRight">阅读量:</td>
+                    <td class="fontsize" id="reading" ></td>
+                </tr>
+                <tr>
+                    <td class="fontsize acticleRight">分享量:</td>
+                    <td class="fontsize" id="share" ></td>
+                </tr>
+                <tr>
+                    <td class="fontsize acticleRight">作者名字:</td>
+                    <td class="fontsize" id="name" ></td>
+                </tr>
+
+            </table>
+            <div class="time">时间:<span id="time"></span></div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="content" id="html">
+        </div>
+    </div>
+</body>
+

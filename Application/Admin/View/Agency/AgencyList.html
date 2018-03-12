@@ -1,0 +1,250 @@
+    <include file="Template/Common/header.html" />
+
+    <css href="__CSS__/bootstrap.min.css" />
+
+<style>
+    .navbar {margin-bottom: 0; line-height: 50px; padding: 0 10px;}
+    .navbar>input {width: 20%; display: inline;}
+    .navbar>button {height: 34px; transform: translateY(-2px);}
+    .layui-elem-quote {font-size: 15px;}
+    .layui-form-label {padding: 9px 10px;}
+</style>
+<body>
+    <div class="x-body">
+        <blockquote class="layui-elem-quote">代理列表</blockquote>
+        <nav class="navbar navbar-default">
+            <input type="text" id="sys_name" class="form-control" placeholder="请输入系统名称" />
+            <button typr="button" class="btn btn-default" id="searchBtn">搜索</button>
+        </nav>
+        <table id="AgencyList" lay-filter="AgencyList"></table>
+    </div>
+</body>
+
+<script>
+
+    var nowtime = Date.parse(new Date())/1000;   // 获取当前时间戳
+    var html = '<div class="layui-form">';
+        html += '<div class="layui-form-item">';
+        html += '<div class="layui-inline">';
+        html += '<label class="layui-form-label">请选择日期</label>';
+        html += '<div class="layui-input-inline">';
+        html += '<input type="text" class="layui-input" id="times" placeholder="YYYY-MM-DD" />';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+    var time = '';
+
+    //
+    layui.use('laydate', function() {
+    });
+
+    layui.use('table', function () {
+        var table = layui.table;
+        var laydata = layui.laydate;
+
+        // 32位随机数
+        var nonce_str = nonceStr(32);
+
+        layer.load(1);
+        // 方法级渲染
+        var tableReload = table.render({
+            elem: "#AgencyList",
+            url: "<{:U('AgencyList')}>",
+            page: true,
+            cols: [[
+                {field: 'id', title: 'ID', align: 'center', width:80, sort: true, fixed: 'left'}
+                ,{field: 'logo', title: 'logo', align: 'center', width: 120, templet: '#showLogo'}
+                ,{field: 'sys_name', title: '系统名称', align: 'center', width: 140, sort: true}
+                ,{field: 'user', title: '用户名', align: 'center', width: 140}
+                ,{field: 'user_tel', title: '电话', align: 'center', width: 140}
+                ,{field: 'create_time', title: '申请时间', align: 'center', width: 180, sort: true}
+                ,{field: 'end_time', title: '授权结束时间', align: 'center', width: 180, sort: true}
+                ,{field: 'balance', title: '余额', align: 'center', width: 120, sort: true}
+                ,{field: 'login_count', title: '登录次数', align: 'center', width: 120, sort: true}
+                ,{field: 'status_name', title: '状态', align: 'center', width: 120, templet: '#statusInfo', sort: true}
+                ,{title: '操作', width: 150, align: 'center', toolbar: '#operation'}
+            ]],
+            done: function (res) {
+                layer.closeAll();
+            }
+        });
+
+
+        // 监听工具栏事件
+        table.on('tool(AgencyList)', function (obj) {
+            var data = obj.data;    // 获得当前数据
+            var layEvent = obj.event;   // 获得 lay-event 对应的值
+            var tr = obj.tr;    // 获得当前行 tr 的 dom 对象
+
+            // 授权
+            if(layEvent == "authorization") {
+                layer.open({
+                    title: "设定授权结束时间",
+                    content: html,
+                    btn: ["是", "否"],
+                    yes: function (res) {
+                        layer.closeAll();
+
+                        time = new Date(Date.parse(time.replace(/-/g, "/")));
+                        time = time.getTime()/1000;
+
+                        // 判断是否有输入时间
+                        if ($('#times').val() == '') {
+                            layer.msg("选定的时间不能为空，请重新选择！", {icon: 2});
+                            return ;
+                        }
+
+                        // 判断选定的时间戳是否小于当前时间戳
+                        if ( time < nowtime ) {
+                            layer.msg("您选定的时间有误，请重新选择！", {icon: 2});
+                            return ;
+                        }
+                        authorization();
+                    }
+                });
+            }
+
+            // 封号
+            if(layEvent == "sealNumber") {
+                layer.open({
+                    title: "提示",
+                    content: "封号之后该用户不能继续使用，是否继续！",
+                    btn: ["是", "否"],
+                    yes: function (res) {
+                        layer.closeAll();
+                        layer.load(1);
+                        sealNumber();
+                    }
+                });
+            }
+
+            // 时间格式
+            laydata.render({
+                elem: '#times',
+                format: 'yyyy-MM-dd',
+                done: function (value, date) {
+                    console.log("date", date);
+
+                    var timeY = date.year;
+                    var timeM = date.month;
+                    var timeD = date.date;
+                    time = timeY + '-' + (timeM < 10 ? "0" + timeM : timeM) + '-' + (timeD < 10 ? "0" + timeD : timeD);
+
+                }
+            });
+
+            // 授权
+            function authorization (){
+
+                var url = "<{:U(agencyAuthorization)}>";
+                var setdata = {
+                    id: data.id,
+                    nonce_str: nonce_str,
+                    end_time: time,
+                    sign: hex_md5("__VERIFY_STR__" + time + data.id + nonce_str)       // 发送签名
+                };
+
+                layer.load(1);
+                $.ajax({
+                    url: url,
+                    data: setdata,
+                    type: 'post',
+                    success: function (res) {
+                        layer.closeAll();
+
+                        if (parseInt(res.code) == 0) {
+                            layer.msg( res.msg , { icon: 1 }, function (){
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+            }
+
+            // 封号
+            function sealNumber () {
+                var url = "<{:U(setUserStatus)}>";  // 代理封号要发送的连接
+                var setdata = {
+                    id: data.id,
+                    nonce_str: nonce_str,
+                    sign: hex_md5("__VERIFY_STR__" + data.id + nonce_str)       // 发送签名
+                };
+
+                // 请求数据
+                $.ajax({
+                    url: url,
+                    data: setdata,
+                    type: 'post',
+                    success: function(res) {
+                        layer.closeAll();
+
+                        if (parseInt(res.code) == 4000) {
+                            layer.msg( "当前状态已封号！", {icon: 2});
+                            return ;
+                        }
+                        if (parseInt(res.code) == 0 ) {
+                            layer.msg( "封号成功！", { icon: 4 }, function (){
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // 搜索按钮
+        $("#searchBtn").click(function () {
+            searchUser();
+        });
+
+        // 当按下回车
+        $(document).keypress(function (ev) {
+            if( ev.keyCode == 13 ) {
+                searchUser();
+            }
+        });
+
+        // 搜索
+        function searchUser() {
+
+            var url = "<{:U(agencySearch)}>";
+            var data = {
+                sys_name : $('#sys_name').val()
+            };
+
+            layer.load(1);
+            tableReload.reload({
+                url : url,
+                where : data,
+                page : {
+                    curr : 1
+                },
+                done : function(res){
+                    layer.closeAll();
+                }
+            });
+        }
+    });
+</script>
+
+
+<script type="text/html" id="operation" >
+    <a class="layui-btn layui-btn-mini" lay-event="authorization">授权</a>
+    <!--<a class="layui-btn layui-btn-mini" lay-event="deArchive">解封</a>-->
+    <a class="layui-btn layui-btn-danger layui-btn-mini" lay-event="sealNumber">封号</a>
+</script>
+
+<!--状态-->
+<script type="text/html" id="statusInfo">
+    {{# if(d.status == 0) { }}
+        <a style="color: green;">{{ d.status_name }}</a>
+    {{# } else { }}
+        <a style="color: red;">{{ d.status_name }}</a>
+    {{# } }}
+</script>
+
+<!--状态-->
+<script type="text/html" id="showLogo">
+    <img src="{{ d.logo }}" style="width: 28px; height: 28px; border-radius: 50%;" />
+</script>

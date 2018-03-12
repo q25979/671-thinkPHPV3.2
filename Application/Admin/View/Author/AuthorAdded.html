@@ -1,0 +1,55 @@
+<include file="Template/Common/header.html" />
+
+<style>
+    .layui-form { border: 1px dotted #D6D6D6; padding: 40px; }
+    .layui-elem-quote {font-size: 17.5px;}
+</style>
+
+<body>
+
+    <div class="x-body">
+        <blockquote class="layui-elem-quote">作者添加</blockquote>
+        <form class="layui-form layui-form-pane">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户名</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" name="username" placeholder="请输入用户名" />
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">名字</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" name="username" placeholder="请输入名字" />
+                </div>
+            </div>
+
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">性别</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="sex" value="男" title="男" checked />
+                    <input type="radio" name="sex" value="女" title="女" />
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-block">
+                    <textarea class="layui-textarea" name="desc" placeholder="请输入内容" rows="5"></textarea>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-filter="form-author">添加</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+<script>
+</script>

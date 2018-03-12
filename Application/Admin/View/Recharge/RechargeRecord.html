@@ -1,0 +1,228 @@
+<include file="Template/Common/header.html" />
+
+<css href="__CSS__/bootstrap.min.css" />
+
+<style>
+    .navbar {margin-bottom: 0; line-height: 50px; padding: 0 10px;}
+    .navbar>input {width: 20%; display: inline;}
+    .navbar>button {height: 34px; transform: translateY(-2px);}
+    .del-all {height: 34px; position: absolute; top: 50%; transform: translateY(-50%) !important;}
+    .top {margin-top: 10px;}
+    .layui-elem-quote {font-size: 15px;}
+    .layui-table-cell .layui-form-checkbox { top: 6px !important; }
+</style>
+<body>
+    <div class="x-body">
+        <blockquote class="layui-elem-quote">充值记录</blockquote>
+        <nav class="navbar navbar-default">
+            <input type="text" id="article_name" class="form-control" placeholder="请输入充值的系统名称" />
+            <button typr="button" class="btn btn-default" id="searchBtn">搜索</button>
+        </nav>
+        <nav class="navbar navbar-default top">
+            <button data-type="delAllBtn" class="btn btn-danger del-all" id="delAllBtn">一键删除</button>
+        </nav>
+        <table id="RechargeRecord" lay-filter="checkRecord"></table>
+    </div>
+</body>
+
+<script>
+    var str = '';
+    var countId = [];
+
+    layui.use('table', function () {
+        var table = layui.table;
+
+        layer.load(1);
+        // 方法级渲染
+        var tableReload = table.render({
+            elem: "#RechargeRecord",
+            url: "<{:U('rechargeable')}>",
+            page: true,
+            cols: [[
+                {checkbox: true, fixed: true}
+                ,{field: 'id', title: 'ID', align: 'center', width:80, sort: true, fixed: true}
+                ,{field: 'logo', title: '系统logo', align: 'center', width: 120, templet: '#sysLogo'}
+                ,{field: 'sys_name', title: '系统名称', align: 'center', width: 140, sort: true}
+                //,{field: 'agency_id', title: '代理ID', align: 'center', width: 80}
+                ,{field: 'recharge_order', title: '充值单号', align: 'center', width: 180}
+                ,{field: 'create_time', title: '充值时间', align: 'center', width: 180, sort: true}
+                ,{field: 'money', title: '金额', align: 'center', width: 120, sort: true}
+                ,{field: 'status_name', title: '状态', align: 'center', width: 120, sort: true, templet: '#statusInfo'}
+                //,{field: 'status', title: '状态', align: 'center', width: 100, sort: true}
+                ,{title: '操作', width: 120, align: 'center', toolbar: '#operation'}
+            ]],
+            id: 'Record',
+            done: function (res) {
+                layer.closeAll();
+            }
+        });
+
+        // 监听表格复选框选择
+        table.on('checked(checkRecord)', function (obj) {
+            console.log(obj);
+        });
+
+        // 监听工具栏事件
+        table.on('tool(checkRecord)', function (obj) {
+            var data = obj.data;    // 获取当前数据
+            var layEvent = obj.event;   // 获得 lay-event 对应的值
+            var tr = obj.tr;    // 获得当前 tr 的 dom 对象
+
+            var url = data.id;  // 要发送的链接
+
+            // 删除
+            if(layEvent == "del") {
+                layer.open({
+                    title: "提示",
+                    content: '确认删除当前记录！',
+                    btn: ["确认", "取消"],
+                    yes: function (res){
+                        layer.closeAll();
+                        delRecord( data.id ,1);
+                    }
+                })
+            }
+
+        });
+
+        var $ = layui.$, active = {
+            // 一键删除
+            delAllBtn: function (){
+                layer.open({
+                    title: "提示",
+                    content: '是否删除当前选中的记录！',
+                    btn: ["是", "否"],
+                    yes: function (res){
+                        layer.closeAll();
+                        delRecord(checkbox(), 0);
+                    }
+                });
+            }
+        }
+
+        // 复选框
+        function checkbox () {
+            var checkStatus = table.checkStatus('Record');
+            var data = checkStatus.data;
+            var status = checkStatus.isAll;
+
+            // 循环选中长度 把 ID 添加到字符串
+            for ( var i = 0; i < data.length; i++) {
+                str += data[i].id + ',';
+                countId = str.split(",");   // 把字符串切割成数组
+            }
+
+            // 判断全选和不全选
+            if ( data.length == 0 ) {
+                countId = [];
+            }
+
+            // 数组去重
+            var nowarr = [];
+            for (var i in countId ) {
+                if ( nowarr.indexOf(countId[i]) == -1 ) {
+                    nowarr.push(countId[i]);
+                }
+            }
+
+            nowarr = nowarr.join(",");
+
+            return nowarr;
+        }
+
+        // 搜索按钮
+        $("#searchBtn").click(function () {
+            searchUser();
+        });
+
+        // 当按下回车
+        $(document).keypress(function (ev) {
+            if( ev.keyCode == 13 ) {
+                searchUser();
+            }
+        });
+
+        // 搜索
+        function searchUser() {
+
+            var url = "<{:U('rechargeSearch')}>";
+            var data = {
+                sys_name: $('#article_name').val()
+            };
+
+            layer.load(1);
+            tableReload.reload({
+               url: url,
+               where: data,
+               page: {
+                   curr: 1
+               },
+               done: function(res){
+                   layer.closeAll();
+               }
+            });
+        }
+
+        // 删除
+        function delRecord( id, status) {
+
+            if(status) {    // 删除
+                var data = { id: id };
+            } else {        //  一键删除
+                console.log("一键删除", id);
+                data = { id: id };
+            }
+
+            var url = "<{:U(recordDel)}>";
+
+            layer.load(1);
+            $.ajax({
+                url: url,
+                data: data,
+                type: 'post',
+                success: function (res) {
+                    layer.closeAll();
+                    if (parseInt(res.code) == 0) {
+                        layer.msg( "删除成功！" , { icon: 1 }, function (){
+                            location.reload();
+                        });
+                    }
+
+                    if(parseInt(res.code) == 4003) {
+                        layer.msg("未选中记录，删除失败!" , {icon: 5} , function(){
+                            location.reload();
+                        });
+                    }
+                }
+            });
+
+        }
+
+        // 获取按钮
+        $('.top .del-all').on('click', function (){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+
+</script>
+
+
+<script type="text/html" id="operation" >
+    <a class="layui-btn layui-btn-danger layui-btn-mini" lay-event="del">删除</a>
+</script>
+
+<!--状态-->
+<script type="text/html" id="statusInfo">
+    {{# if(d.status == 0) { }}
+        <a style="color: green;">{{ d.status_name }}</a>
+    {{# } else { }}
+        <a style="color: red;">{{ d.status_name }}</a>
+    {{# } }}
+</script>
+
+<!--显示系统logo-->
+<script type="text/html" id="sysLogo">
+    <img src="{{ d.logo }}" style="width: 28px; height: 28px; border-radius: 50%;" />
+</script>
