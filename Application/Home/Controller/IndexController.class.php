@@ -1,8 +1,8 @@
 <?php
-namespace Admin\Controller;
+namespace Home\Controller;
 use Think\Controller;
 
-class IndexController extends Controlller {
+class IndexController extends Controller {
     public function index() {
 		echo "@671 V2.0";
 	}
