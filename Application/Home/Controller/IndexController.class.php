@@ -4,6 +4,6 @@ use Think\Controller;
 
 class IndexController extends Controller {
     public function index() {
-		echo "@671 V2.0";
+		echo "@671 V2.0 1";
 	}
 }

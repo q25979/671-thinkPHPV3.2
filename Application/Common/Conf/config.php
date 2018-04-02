@@ -3,10 +3,10 @@ return array(
 	//'配置项'=>'配置值'
 	//数据库配置信息
 	'DB_TYPE'   => 'mysql', // 数据库类型
-	'DB_HOST'   => '47.95.255.97', // 服务器地址 发到服务器上就是localhost 数据库地址
-	'DB_NAME'   => 'qzxt', // 数据库名
-	'DB_USER'   => 'root', // 用户名
-	'DB_PWD'    => '004369', // 密码
+	'DB_HOST'   => 'xx.xxx.xx.xx', // 服务器地址 发到服务器上就是localhost 数据库地址
+	'DB_NAME'   => 'xxxx', // 数据库名
+	'DB_USER'   => 'xxx', // 用户名
+	'DB_PWD'    => 'xxxx', // 密码
 	'DB_PORT'   => 3306, // 端口
 	'DB_PREFIX' => 'qz_', // 数据库表前缀
 
