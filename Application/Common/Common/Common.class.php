@@ -5,6 +5,24 @@
  * 功能：公共类
  */
 
+// +--------------------------------------------------------
+// + 公用类的方法
+// +--------------------------------------------------------
+// + 1.md5验证：verifyMd5($md5, $data)
+// +--------------------------------------------------------
+// + 2.生成ID(纯数字)：generateId($length=32)
+// +--------------------------------------------------------
+// + 3.生成订单号(16位)：generateOrder()
+// +--------------------------------------------------------
+// + 4.生成验证码：generateCode($id='')
+// +--------------------------------------------------------
+// + 5.生成随机数：nonceStr($length=16)
+// +--------------------------------------------------------
+// + 6.获取当前页面的URL：getUrl()
+// +--------------------------------------------------------
+// + 7.获取客户端IP：getIP()
+// +--------------------------------------------------------
+
 class Common {
     /**
      * md5验证
@@ -24,11 +42,27 @@ class Common {
     }
 
     /**
-     * 创建订单号获取id
+     * 生成id
+     *
+     * @return string 生成id
+     */
+    function generateId($length=32) {
+        $id = date('YmdHis') . substr(time(), 0) . substr(microtime(), 2, 6) . sprintf('%02d', rand(0, 99));
+
+        if ($length == 16) {
+            return substr(time(), 0) . substr(microtime(), 2, 4) . sprintf('%02d', rand(0, 99));
+
+        } else {
+            return $id;
+        }
+    }
+
+    /**
+     * 生成订单号
      *
      * @return string 唯一的id值
      */
-    function createOrder() {
+    function generateOrder() {
         $yCode = array('a', 'B', 'c', 'd', 'E', 'k', 'G', 'H', 'M', 'J');
         $orderSn = $yCode[intval(date('Y')) - 2011] . strtoupper(dechex(date('m'))) . date('d') . substr(time(), -5) . substr(microtime(), 2, 5) . sprintf('%02d', rand(0, 99));
 
@@ -38,14 +72,14 @@ class Common {
     /**
      * 生成验证码
      */
-    function createCode() {
+    function generateCode($id='') {
         $verify = new \Think\Verify();
 
         $verify->fontSize = 30;     // 字体大小
         $verify->length = 4;        // 验证码长度
         $verify->useNoise = false;  // 清除杂点
 
-        $verify->entry();   // 生成验证码
+        $verify->entry($id);   // 生成验证码
     }
 
     /**

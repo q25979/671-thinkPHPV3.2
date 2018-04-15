@@ -17,15 +17,11 @@ if(version_compare(PHP_VERSION,'5.3.0','<'))  die('require PHP > 5.3.0 !');
 // 开启调试模式 建议开发阶段开启 部署阶段注释或者设为false
 define('APP_DEBUG',True);
 
-// 配置入口文件
-//$_GET['m'] = 'Home';
-//$_GET['c'] = 'AgencyLogin';
-
 // 定义应用目录
 define('APP_PATH','./Application/');
 
 // 定义域名目录
-define('HOST_PATH', 'http://localhost/qzxt');    // 本地环境
+define('HOST_PATH', 'http://localhost/btc');    // 本地环境
 
 // 定义后台路径
 define('ADMIN_PATH', HOST_PATH . '/Admin/Login');
@@ -34,7 +30,7 @@ define('ADMIN_PATH', HOST_PATH . '/Admin/Login');
 define('TPL_PATH', HOST_PATH . '/Template/');
 
 // 验证字符串
-define('VERIFY_STR', "@671");
+define('VERIFY_STR', "urWxhG50vwJwvZdwSKRuVAS95Vxiprrw");
 
 // 引入ThinkPHP入口文件
 require './ThinkPHP/ThinkPHP.php';

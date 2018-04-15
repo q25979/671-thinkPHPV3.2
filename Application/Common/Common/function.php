@@ -10,5 +10,7 @@ require_once "Common.class.php";
 require_once "QiniuImage.class.php";
 require_once "WxVipcn.class.php";
 require_once "WxPay/WxPay.class.php";
+require_once "WxMiniApp.class.php";
+require_once "TxCos.class.php";
 
 
