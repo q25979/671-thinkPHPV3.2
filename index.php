@@ -29,8 +29,7 @@ define('ADMIN_PATH', HOST_PATH . '/Admin/Login');
 // 定义模板目录
 define('TPL_PATH', HOST_PATH . '/Template/');
 
-// 验证字符串
-define('VERIFY_STR', "urWxhG50vwJwvZdwSKRuVAS95Vxiprrw");
+require_once './constant.php';
 
 // 引入ThinkPHP入口文件
 require './ThinkPHP/ThinkPHP.php';
